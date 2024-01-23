@@ -3,32 +3,27 @@ import { objectToUrlParams } from '../../utils/convertData';
 import { baseQuery } from '../api/index';
 
 type QueryParams = {
-    pageIndex?: number;
-    pageSize?: number;
-    status?: number | string;
-    roleId?: number | string;
-    name?: number | string;
+    name: string;
 };
 
-export const accountApi = createApi({
-    reducerPath: 'users',
-    tagTypes: ['UsersTag'],
+export const booksApi = createApi({
+    reducerPath: 'books',
+    tagTypes: ['BooksTag'],
     baseQuery: baseQuery,
     endpoints: (build) => ({
-        getListUser: build.query({
+        getListBook: build.mutation({
             query: (param: QueryParams) => {
                 const string = objectToUrlParams(param);
                 return {
-                    url: `/customers?${string}`,
+                    url: `/books?${string}`,
                 };
             },
-            providesTags: ['UsersTag'],
             transformResponse: (res: any) => res?.data,
         }),
-        getOneUser: build.mutation({
+        getOneBook: build.mutation({
             query: (id: string) => {
                 return {
-                    url: `/customers/${id}`,
+                    url: `/books/${id}`,
                     method: 'GET',
                 };
             },
@@ -36,44 +31,44 @@ export const accountApi = createApi({
                 return res.data as any
             }
         }),
-        addUsers: build.mutation({
+        addBook: build.mutation({
             query: (body) => {
                 return {
-                    url: '/customers',
+                    url: '/books',
                     method: 'POST',
                     body,
                 };
             },
-            invalidatesTags: ['UsersTag'],
+            invalidatesTags: ['BooksTag'],
         }),
-        editOneUsers: build.mutation({
+        editOneBook: build.mutation({
             query(data) {
                 return {
-                    url: '/customers',
+                    url: '/books',
                     method: 'PATCH',
                     body: data,
                 };
             },
-            invalidatesTags: ['UsersTag'],
+            invalidatesTags: ['BooksTag'],
         }),
-        deleteOneUsers: build.mutation({
+        deleteOneBook: build.mutation({
             query(id: number) {
                 return {
-                    url: `/customers/${id}`,
+                    url: `/books/${id}`,
                     method: 'DELETE',
                     body: id,
                 };
             },
-            invalidatesTags: ['UsersTag'],
+            invalidatesTags: ['BooksTag'],
         }),
 
     }),
 });
 
 export const {
-    useAddUsersMutation,
-    useDeleteOneUsersMutation,
-    useEditOneUsersMutation,
-    useGetListUserQuery,
-    useGetOneUserMutation,
-} = accountApi;
+    useAddBookMutation,
+    useDeleteOneBookMutation,
+    useEditOneBookMutation,
+    useGetListBookMutation,
+    useGetOneBookMutation,
+} = booksApi;

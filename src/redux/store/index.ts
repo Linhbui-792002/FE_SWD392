@@ -6,18 +6,25 @@ import { api } from '../api';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { loginApi } from '../endPoint/login';
 import { accountApi } from '../endPoint/accounts';
+import loginSlice from '../slices/loginSlice'
+import { booksApi } from '../endPoint/books';
+import { cartApi } from '../endPoint/card';
 
 const persistConfig = {
-    key: 'root',
+    key: 'auth',
     storage,
-    whitelist: ['data'],
+    whitelist: ['data', 'details'],
 };
 
 const makeStore = () => {
     const reducers = combineReducers({
+        auth: persistReducer(persistConfig, loginSlice),
+        login: loginApi.reducer,
         [api.reducerPath]: api.reducer,
         [loginApi.reducerPath]: loginApi.reducer,
         [accountApi.reducerPath]: accountApi.reducer,
+        [booksApi.reducerPath]: booksApi.reducer,
+        [cartApi.reducerPath]: cartApi.reducer,
 
     });
 
@@ -30,7 +37,9 @@ const makeStore = () => {
                 serializableCheck: false,
             }).concat([
                 loginApi.middleware,
-                accountApi.middleware
+                accountApi.middleware,
+                booksApi.middleware,
+                cartApi.middleware
             ]),
     });
 

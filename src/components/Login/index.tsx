@@ -1,15 +1,21 @@
 import { TextInput } from '@mantine/core'
 import { notifications } from '@mantine/notifications';
+import { useGetOneUserMutation } from '@src/redux/endPoint/accounts';
 import { useLoginMutation } from '@src/redux/endPoint/login';
+import { loginSuccess, setUserDetails } from '@src/redux/slices/loginSlice';
+import { AppDispatch, RootState } from '@src/redux/store';
+import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link'
 import { useRouter } from 'next/router';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 
 const Login = () => {
-
+    const dispatch = useDispatch<AppDispatch>();
+    const user = useSelector((state: RootState) => state.auth.data);
     const router = useRouter()
     const [login] = useLoginMutation();
+    const [getOneUser] = useGetOneUserMutation();
     const {
         control,
         register,
@@ -23,16 +29,21 @@ const Login = () => {
         try {
             // const dataSubmit = { ...data, id: managerIt.id };
             const res = await login(data).unwrap();
-            console.log(res, "data")
-            localStorage.setItem('user', JSON.stringify(res.data))
-            router.push("/")
-            notifications.show({
-                title: 'Thành công',
-                color: '#06d6a0',
-                autoClose: 2000,
-                message: 'Đăng nhập thành công',
-            });
-
+            if (res.data) {
+                const user: any = await getOneUser(res.data.customerId)
+                if (user) {
+                    dispatch(loginSuccess(res));
+                    const userDetail = user.data;
+                    dispatch(setUserDetails(userDetail));
+                    router.push("/")
+                    notifications.show({
+                        title: 'Thành công',
+                        color: '#06d6a0',
+                        autoClose: 2000,
+                        message: 'Đăng nhập thành công',
+                    });
+                }
+            }
         } catch (error: any) {
             notifications.show({
                 title: 'Lỗi',
@@ -42,6 +53,7 @@ const Login = () => {
             });
         }
     }
+
 
     return (
         <div className="h-screen flex items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500">
@@ -53,7 +65,7 @@ const Login = () => {
                                 Đăng Nhập Với Tài Khoản Của Bạn
                             </h1>
 
-                            <form onSubmit={handleSubmitLogin(onSubmit)} className="w-full flex flex-col gap-4">
+                            <form onSubmit={handleSubmitLogin(onSubmit)} className="w-full flex flex-col gap-2">
                                 <TextInput
                                     className="w-full"
                                     label="Email"

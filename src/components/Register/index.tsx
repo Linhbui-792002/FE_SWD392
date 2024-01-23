@@ -20,7 +20,6 @@ const Register = () => {
 
     const onSubmit = async (data: any) => {
         try {
-            console.log("data", data)
             if (data) {
                 const dataSubmit = {
                     phone: data.phone,
@@ -41,7 +40,6 @@ const Register = () => {
                     }
                 };
                 const res = await creatCustomer(dataSubmit).unwrap();
-                console.log(res, "data")
                 localStorage.setItem('user', JSON.stringify(res.data))
                 router.push("/login")
                 notifications.show({

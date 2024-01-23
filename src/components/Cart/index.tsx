@@ -1,9 +1,34 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import CartItem from './components/CartItem'
 import { Button } from '@mantine/core'
 import Link from 'next/link'
+import { AppDispatch, RootState } from '@src/redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
+import { useGetListCartMutation } from '@src/redux/endPoint/card';
 
 const Cart = () => {
+    const user: any = useSelector((state: RootState) => state.auth.data)
+    const [getListCart] = useGetListCartMutation();
+    const [cartItem, setCartItem] = useState<any>()
+    const router = useRouter()
+    useEffect(() => {
+        if (user) {
+            getCartByCusID(user?.data?.customerId)
+        }
+
+    }, [user, getListCart, router])
+    const getCartByCusID = async (id: any) => {
+        try {
+            const res: any = await getListCart(id);
+            if (res) {
+                setCartItem(res.data.items)
+            }
+        } catch (error) {
+            console.error('Error card:', error);
+        }
+    }
+
     return (
         <div className="w-full pt-[30px]">
             <div className="w-[80%] mx-[auto]">
@@ -25,9 +50,11 @@ const Cart = () => {
                     </div>
                 </div>
                 <div className="w-full">
-                    {Array.from(new Array(3)).map((_, index) => (
+                    {cartItem && cartItem.map((item: any, index: number) => (
                         <CartItem
                             key={index}
+                            data={item}
+                            cartId={user?.data?.cartId}
                         />
                     ))}
                 </div>

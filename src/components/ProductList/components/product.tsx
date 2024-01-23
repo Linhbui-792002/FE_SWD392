@@ -1,10 +1,47 @@
 import { Button } from '@mantine/core'
 import Image from 'next/image'
 import React from 'react'
+import { useRouter } from 'next/router';
+import { useAddCartMutation } from '@src/redux/endPoint/card';
+import { loginSuccess, setUserDetails } from '@src/redux/slices/loginSlice';
+import { AppDispatch, RootState } from '@src/redux/store';
+import { useDispatch, useSelector } from 'react-redux'
+
 type Props = {
     className?: string
+    data: any
 }
-const Product = ({ className }: Props) => {
+const Product = ({ className, data }: Props) => {
+    const router = useRouter();
+    const user: any = useSelector((state: RootState) => state.auth.data)
+    const [addToCart] = useAddCartMutation()
+    const dispatch = useDispatch<AppDispatch>();
+
+
+    const handleAddToCard = async (id: string) => {
+        if (!user) {
+            router.push("/login")
+            return;
+        }
+        try {
+            const cartId = user?.data?.cartId;
+            const body = {
+                bookId: id,
+                quantity: 1,
+                customerId: user?.data?.customerId,
+            }
+            const res: any = await addToCart({ body, id: cartId });
+            if (res) {
+
+                dispatch(loginSuccess({ ...user, data: { ...user.data, cartId: res.data.data._id } }));
+
+                router.push('/cart')
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
     return (
         <div className={className}>
             <div className="relative w-full">
@@ -12,19 +49,18 @@ const Product = ({ className }: Props) => {
                 <div className="absolute z-10 bottom-0 w-full bg-[#FFFFFF]/80">
                     <div className="px-[10px] py-[10px]">
                         <div>
-                            Tên Sách: Nhật Ký của tôi
+                            Tên Sách: {data?.name}
                         </div>
                         <div>
-                            tác giả: Linhbui
+                            Tác giả: {data?.author}
                         </div>
                         <div>
-                            Giá bán: 2000000 đồng
+                            Giá bán: {data?.price} đồng
                         </div>
-                        <div>
-                            <Button
-                                className="w-full h-[42px] max-h-full rounded-md bg-[#d7348b] px-[10px] text-[#ffffff] hover:bg-[#f83da0]"
-                            >Thêm Giỏ Hàng</Button>
-                        </div>
+                        <Button
+                            onClick={() => handleAddToCard(data?._id)}
+                            className="w-full h-[42px] max-h-full rounded-md bg-[#d7348b] px-[10px] text-[#ffffff] hover:bg-[#f83da0]"
+                        >Thêm Giỏ Hàng</Button>
                     </div>
                 </div>
             </div>
