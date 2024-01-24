@@ -6,7 +6,9 @@ import {
   useGetListBooksQuery,
   useGetOneBookMutation,
   useDeleteOneBookMutation,
+  useEditOneBookMutation,
 } from "@src/redux/endPoint/books";
+import { notifications } from "@mantine/notifications";
 
 interface IBook {
   _id?: string;
@@ -40,6 +42,7 @@ const Staff = () => {
   const [getOneBook] = useGetOneBookMutation();
 
   const [deleteOneBook] = useDeleteOneBookMutation();
+  const [editOneBook] = useEditOneBookMutation();
   // console.log("dataById", dataById);
 
   // useEffect(() => {
@@ -50,7 +53,7 @@ const Staff = () => {
 
   // console.log("dataTable", dataTable);
 
-  useEffect(() => { }, [id]);
+  useEffect(() => {}, [id]);
 
   const [createBook] = useAddBookMutation();
   const addNewBook = async () => {
@@ -69,8 +72,11 @@ const Staff = () => {
   };
 
   const handleEditBook = async (id: string) => {
-    const res = await getOneBook(id)
-    console.log(res,'res')
+    const res: any = await getOneBook(id);
+    console.log(res, "res");
+    if (res) {
+      setFormData(res?.data);
+    }
     Array.from(String(id)).length !== 24
       ? setId("65ab94f5cf9299efdd33d089")
       : setId(id);
@@ -87,6 +93,24 @@ const Staff = () => {
     if (res) {
       console.log(res);
       closeDeleteBook();
+    }
+  };
+
+  const editbook = async () => {
+    try {
+      const res = await editOneBook({ data: formData, id: id });
+
+      if (res) {
+        notifications.show({
+          title: "Thành công",
+          color: "#06d6a0",
+          autoClose: 2000,
+          message: "Update thành công",
+        });
+        closeEditBook();
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -130,7 +154,7 @@ const Staff = () => {
           <Table className="w-full">
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Ảnh</Table.Th>
+                <Table.Th>ID</Table.Th>
                 <Table.Th>Tên Sách</Table.Th>
                 <Table.Th>Giá tiền</Table.Th>
                 <Table.Th>Số lượng</Table.Th>
@@ -155,7 +179,6 @@ const Staff = () => {
             label="Tên sách"
             mt="md"
             placeholder="Nhập tên sách"
-            value={formData.name}
             onChange={(event) => handleInputChange("name", event.target.value)}
           />
 
@@ -164,7 +187,6 @@ const Staff = () => {
             label="Tên tác giả"
             mt="md"
             placeholder="Nhập tác giả"
-            value={formData.author}
             onChange={(event) =>
               handleInputChange("author", event.target.value)
             }
@@ -176,7 +198,6 @@ const Staff = () => {
             mt="md"
             placeholder="Nhập giá sách"
             type="number"
-            // value={formData.price}
             onChange={(event) =>
               handleInputChange("price", +event.target.value)
             }
@@ -188,7 +209,6 @@ const Staff = () => {
             mt="md"
             placeholder="Nhập số lượng sách"
             type="number"
-            // value={formData.stock_quantity}
             onChange={(event) =>
               handleInputChange("stock_quantity", +event.target.value)
             }
@@ -211,6 +231,8 @@ const Staff = () => {
             label="Tên sách"
             mt="md"
             placeholder="Nhập tên sách"
+            defaultValue={formData.name}
+            onChange={(event) => handleInputChange("name", event.target.value)}
           />
 
           <TextInput
@@ -218,6 +240,10 @@ const Staff = () => {
             label="Tên tác giả"
             mt="md"
             placeholder="Nhập tác giả"
+            defaultValue={formData.author}
+            onChange={(event) =>
+              handleInputChange("author", event.target.value)
+            }
           />
 
           <TextInput
@@ -225,6 +251,11 @@ const Staff = () => {
             label="Giá sách"
             mt="md"
             placeholder="Nhập giá sách"
+            type="number"
+            defaultValue={formData.price}
+            onChange={(event) =>
+              handleInputChange("price", +event.target.value)
+            }
           />
 
           <TextInput
@@ -232,9 +263,16 @@ const Staff = () => {
             label="Số lượng sách"
             mt="md"
             placeholder="Nhập số lượng sách"
+            type="number"
+            defaultValue={formData.stock_quantity}
+            onChange={(event) =>
+              handleInputChange("stock_quantity", +event.target.value)
+            }
           />
 
-          <Button className="bg-[#08c546] float-end my-5">Thêm mới</Button>
+          <Button className="bg-[#08c546] float-end my-5" onClick={editbook}>
+            Sửa
+          </Button>
         </form>
       </Modal>
 
