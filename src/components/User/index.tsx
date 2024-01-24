@@ -3,20 +3,24 @@ import { Button, Modal, Table, TextInput } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
   useAddBookMutation,
-  useGetListBooksQuery,
-  useGetOneBookMutation,
+  useGetListBookQuery,
+  useGetOneBookQuery,
   useDeleteOneBookMutation,
-} from "@src/redux/endPoint/books";
+} from "@src/redux/endPoint/book";
+import { useGetListUserQuery } from "@src/redux/endPoint/accounts";
 
-interface IBook {
+interface IUser {
   _id?: string;
-  name: string;
-  price: number;
-  stock_quantity: number;
-  author: string;
+  fullname: {
+    lastname: string;
+    firstname: string;
+    midname: string;
+  };
+  phone: number;
+  email: string;
 }
 
-const Staff = () => {
+const User = () => {
   const initData = {
     name: "",
     author: "",
@@ -24,7 +28,7 @@ const Staff = () => {
     stock_quantity: 0,
   };
 
-  const [formData, setFormData] = useState<IBook>(initData);
+  const [formData, setFormData] = useState<IUser>({});
 
   const [openedAddBook, { open: openAddBook, close: closeAddBook }] =
     useDisclosure(false);
@@ -32,12 +36,13 @@ const Staff = () => {
     useDisclosure(false);
   const [openedDeleteBook, { open: openDeleteBook, close: closeDeleteBook }] =
     useDisclosure(false);
-  const [params, setParams] = useState<any>({});
-  const [dataTable, setDataTable] = useState<IBook[]>([]);
+  const [params, setParams] = useState({});
+  const [dataTable, setDataTable] = useState<IUser[]>([]);
   const [id, setId] = useState<string>("");
-  const { data } = useGetListBooksQuery(params);
+  const { data } = useGetListUserQuery(params);
+  console.log(data);
 
-  const [getOneBook] = useGetOneBookMutation();
+  // const { data: dataBook } = useGetOneBookQuery(id);
 
   const [deleteOneBook] = useDeleteOneBookMutation();
   // console.log("dataById", dataById);
@@ -50,7 +55,7 @@ const Staff = () => {
 
   // console.log("dataTable", dataTable);
 
-  useEffect(() => { }, [id]);
+  useEffect(() => {}, [id]);
 
   const [createBook] = useAddBookMutation();
   const addNewBook = async () => {
@@ -69,8 +74,6 @@ const Staff = () => {
   };
 
   const handleEditBook = async (id: string) => {
-    const res = await getOneBook(id)
-    console.log(res,'res')
     Array.from(String(id)).length !== 24
       ? setId("65ab94f5cf9299efdd33d089")
       : setId(id);
@@ -83,20 +86,21 @@ const Staff = () => {
   };
 
   const deleteBook = async () => {
-    const res = await deleteOneBook(id);
+    const res = await deleteOneBook(String(id));
     if (res) {
       console.log(res);
       closeDeleteBook();
     }
   };
 
-  const rows = data?.map((element: IBook) => (
+  const rows = data?.map((element: IUser) => (
     <Table.Tr key={element._id} className="border-b-2 border-blue-300 ">
       <Table.Td>{element._id}</Table.Td>
-      <Table.Td>{element.name}</Table.Td>
-      <Table.Td>{element.price}</Table.Td>
-      <Table.Td>{element.stock_quantity}</Table.Td>
-      <Table.Td>{element.author}</Table.Td>
+      <Table.Td>
+        {element.fullname.firstname + " " + element.fullname.lastname}
+      </Table.Td>
+      <Table.Td>{element.email}</Table.Td>
+      <Table.Td>{element.phone}</Table.Td>
       <Table.Td className="text-right">
         <Button
           onClick={() => handleEditBook(element._id as string)}
@@ -118,23 +122,22 @@ const Staff = () => {
     <div className="w-full h-full">
       <div className="w-[80%] mx-[auto] mt-[30px]">
         <div className="flex justify-between text-2xl">
-          Staff Manager
+          User Manager
           <Button onClick={openAddBook} className="bg-[#066cee]">
             Thêm Sách
           </Button>
         </div>
         <div className="flex justify-between text-xl">
-          Danh Sách: Sách trong cửa hàng
+          Danh Sách: User hệ thống
         </div>
         <div className="w-full p-4">
           <Table className="w-full">
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Ảnh</Table.Th>
-                <Table.Th>Tên Sách</Table.Th>
-                <Table.Th>Giá tiền</Table.Th>
-                <Table.Th>Số lượng</Table.Th>
-                <Table.Th>Tác giả</Table.Th>
+                <Table.Th>ID</Table.Th>
+                <Table.Th>Họ tên</Table.Th>
+                <Table.Th>Email</Table.Th>
+                <Table.Th>SĐT</Table.Th>
                 <Table.Th className="text-right">Hành động</Table.Th>
               </Table.Tr>
             </Table.Thead>
@@ -155,7 +158,7 @@ const Staff = () => {
             label="Tên sách"
             mt="md"
             placeholder="Nhập tên sách"
-            value={formData.name}
+            // value={formData.name}
             onChange={(event) => handleInputChange("name", event.target.value)}
           />
 
@@ -164,7 +167,7 @@ const Staff = () => {
             label="Tên tác giả"
             mt="md"
             placeholder="Nhập tác giả"
-            value={formData.author}
+            // value={formData.author}
             onChange={(event) =>
               handleInputChange("author", event.target.value)
             }
@@ -252,4 +255,4 @@ const Staff = () => {
   );
 };
 
-export default Staff;
+export default User;

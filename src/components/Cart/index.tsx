@@ -11,6 +11,8 @@ const Cart = () => {
     const user: any = useSelector((state: RootState) => state.auth.data)
     const [getListCart] = useGetListCartMutation();
     const [cartItem, setCartItem] = useState<any>()
+    const [total, setTotal] = useState<any>(0)
+
     const router = useRouter()
     useEffect(() => {
         if (user) {
@@ -18,6 +20,18 @@ const Cart = () => {
         }
 
     }, [user, getListCart, router])
+
+    useEffect(() => {
+        let totalPrice = 0
+        if (cartItem) {
+            cartItem.map((item: any) => {
+                totalPrice += Number(item?.book?.price) * Number(item?.quantity)
+            })
+            setTotal(totalPrice)
+        }
+
+    }, [cartItem, user, getListCart, router])
+
     const getCartByCusID = async (id: any) => {
         try {
             const res: any = await getListCart(id);
@@ -60,7 +74,7 @@ const Cart = () => {
                 </div>
                 <div className="w-full pb-[20px] flex justify-between">
                     <div className="text-2xl">
-                        Tổng tiền : 300000
+                        Tổng tiền :{total}
                     </div>
                     <Link href="/order">
 

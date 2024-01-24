@@ -67,23 +67,21 @@ const Header = () => {
                         </div>
                     </div>
 
-                    <div>
-                        {
-                            !user ?
-                                <Link href="/login">
-                                    <Button
-                                        className="w-max h-[42px] max-h-full rounded-md bg-[#d7348b] px-[10px] text-[#ffffff]"
-                                    >
-                                        Đăng nhập</Button>
-                                </Link>
-                                :
+                    {
+                        !user ?
+                            <Link href="/login">
                                 <Button
-                                    onClick={handleLogout}
                                     className="w-max h-[42px] max-h-full rounded-md bg-[#d7348b] px-[10px] text-[#ffffff]"
                                 >
-                                    Đăng xuất</Button>
-                        }
-                    </div>
+                                    Đăng nhập</Button>
+                            </Link>
+                            :
+                            <Button
+                                onClick={handleLogout}
+                                className="w-max h-[42px] max-h-full rounded-md bg-[#d7348b] px-[10px] text-[#ffffff]"
+                            >
+                                Đăng xuất</Button>
+                    }
                 </div>
             </div>
 

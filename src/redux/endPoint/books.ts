@@ -11,6 +11,17 @@ export const booksApi = createApi({
     tagTypes: ['BooksTag'],
     baseQuery: baseQuery,
     endpoints: (build) => ({
+        getListBooks: build.query({
+            query: (param: QueryParams) => {
+                const string = objectToUrlParams(param);
+                return {
+                    url: `/books?${string}`,
+                    method: "GET",
+                };
+            },
+            providesTags: ["BooksTag"],
+            transformResponse: (res: any) => res?.data,
+        }),
         getListBook: build.mutation({
             query: (param: QueryParams) => {
                 const string = objectToUrlParams(param);
@@ -52,7 +63,7 @@ export const booksApi = createApi({
             invalidatesTags: ['BooksTag'],
         }),
         deleteOneBook: build.mutation({
-            query(id: number) {
+            query(id) {
                 return {
                     url: `/books/${id}`,
                     method: 'DELETE',
@@ -70,5 +81,6 @@ export const {
     useDeleteOneBookMutation,
     useEditOneBookMutation,
     useGetListBookMutation,
+    useGetListBooksQuery,
     useGetOneBookMutation,
 } = booksApi;

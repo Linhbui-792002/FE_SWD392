@@ -1,8 +1,9 @@
 import { Button, TextInput } from '@mantine/core'
-import { useDeleteCartItemMutation } from '@src/redux/endPoint/card'
+import useDebounce from '@src/lib/hooks/useDebounce'
+import { useDeleteCartItemMutation, useUpdateCartItemMutation } from '@src/redux/endPoint/card'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 type Props = {
     data: any,
@@ -12,7 +13,9 @@ type Props = {
 const CartItem = ({ data, cartId }: Props) => {
     const router = useRouter()
     const [deleteCartItem] = useDeleteCartItemMutation()
-
+    const [changeQuantity] = useUpdateCartItemMutation()
+    const [quantity, setQuantity] = useState<string>()
+    const [bookId, setBookId] = useState()
     const handleDeleteCartItem = async (id: any) => {
         try {
             const body = {
@@ -27,6 +30,29 @@ const CartItem = ({ data, cartId }: Props) => {
             console.log(err)
         }
     }
+
+
+    const handleChangeSize = async (quantity: any, bookItemId: any) => {
+
+        const body = {
+            cartId: cartId,
+            bookItemId: bookItemId,
+            newQuantity: quantity,
+        }
+        const res = await changeQuantity(body);
+        if (res) {
+            console.log(res, 'ok')
+            router.push("/cart")
+        }
+    }
+    const debounced = useDebounce(quantity, 500);
+
+    useEffect(() => {
+        if (cartId) {
+            handleChangeSize(quantity, bookId)
+        }
+
+    }, [bookId, debounced])
     return (
         <div className="w-full flex flex-row grid grid-cols-12 items-center py-[20px] mb-[20px] border-b-2">
             <div className="col-span-6 h-[60px] flex items-center justify-start gap-5">
@@ -46,13 +72,13 @@ const CartItem = ({ data, cartId }: Props) => {
 
             <div className="col-span-2">{data?.book?.price}</div>
             <div className="col-span-2 mb-0">
-                <TextInput className="w-[100px]" defaultValue={data?.quantity} />
+                <TextInput className="w-[100px]" defaultValue={data?.quantity}
+                    onClick={() => setBookId(data?._id)}
+                    onChange={(e) => setQuantity(e.target.value)} />
             </div>
-            <div className="col-span-2 flex items-center justify-center">
-                <Button
-                    onClick={() => handleDeleteCartItem(data?._id)}
-                    className="w-[60px] py-[10px] !bg-[#e10908] text-[#ffffff]">Xóa</Button>
-            </div>
+            <Button
+                onClick={() => handleDeleteCartItem(data?._id)}
+                className="col-span-2 flex items-center justify-center w-[60px] py-[10px] !bg-[#e10908] text-[#ffffff]">Xóa</Button>
         </div>
     )
 }

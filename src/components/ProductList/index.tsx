@@ -33,7 +33,7 @@ const ListProduct = () => {
 
 
     return (
-        <div className="w-full pb-[60px]">
+        <div className="w-full pb-[60px] min-h-[80vh]">
             <div className="w-[80%] mx-[auto] grid grid-cols-12 gap-4 justify-center">
                 <div className="flex justify-between col-span-12 mt-[20px] text-3xl">
                     Sách bán chạy
@@ -44,13 +44,20 @@ const ListProduct = () => {
                     />
                 </div>
 
-                {listBook.map((item: any, index: number) => (
-                    <Product
-                        key={index}
-                        className="col-span-3"
-                        data={item}
-                    />
-                ))}
+                {listBook &&
+
+                    listBook.map((item: any, index: number) => (
+                        <Product
+                            key={index}
+                            className="col-span-3"
+                            data={item}
+                        />
+                    ))
+                }
+                {listBook.length == 0 &&
+                    <div className="w-full col-span-12 text-2xl">
+                        Không Tìm Thấy Sách
+                    </div>}
             </div>
         </div>
     )
