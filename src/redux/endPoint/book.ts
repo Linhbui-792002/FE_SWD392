@@ -10,67 +10,68 @@ type QueryParams = {
   name?: number | string;
 };
 
-export const accountApi = createApi({
-  reducerPath: "users",
-  tagTypes: ["UsersTag"],
+export const bookApi = createApi({
+  reducerPath: "books",
+  tagTypes: ["BooksTag"],
   baseQuery: baseQuery,
   endpoints: (build) => ({
-    getListUser: build.query({
+    getListBook: build.query({
       query: (param: QueryParams) => {
         const string = objectToUrlParams(param);
         return {
-          url: `/customers?${string}`,
+          url: `/books?${string}`,
+          method: "GET",
         };
       },
-      providesTags: ["UsersTag"],
+      providesTags: ["BooksTag"],
       transformResponse: (res: any) => res?.data,
     }),
-    getOneUser: build.query({
+    addBook: build.mutation({
+      query: (body) => {
+        return {
+          url: "/books",
+          method: "POST",
+          body,
+        };
+      },
+      invalidatesTags: ["BooksTag"],
+    }),
+    getOneBook: build.query({
       query: (id) => {
         return {
-          url: `/customers/${id}`,
+          url: `/books/${id}`,
           method: "GET",
         };
       },
       transformResponse: (res: any) => res?.data,
     }),
-    addUsers: build.mutation({
-      query: (body) => {
-        return {
-          url: "/customers",
-          method: "POST",
-          body,
-        };
-      },
-      invalidatesTags: ["UsersTag"],
-    }),
-    editOneUsers: build.mutation({
+    editOneBook: build.mutation({
       query(data) {
         return {
-          url: "/customers",
+          url: "/books",
           method: "PATCH",
           body: data,
         };
       },
-      invalidatesTags: ["UsersTag"],
+      invalidatesTags: ["BooksTag"],
     }),
-    deleteOneUsers: build.mutation({
-      query(id: number) {
+    deleteOneBook: build.mutation({
+      query(id: string) {
         return {
           url: `/customers/${id}`,
           method: "DELETE",
           body: id,
         };
       },
-      invalidatesTags: ["UsersTag"],
+      invalidatesTags: ["BooksTag"],
     }),
   }),
 });
 
 export const {
-  useAddUsersMutation,
-  useDeleteOneUsersMutation,
-  useEditOneUsersMutation,
-  useGetListUserQuery,
-  useGetOneUserQuery,
-} = accountApi;
+  useAddBookMutation,
+  useDeleteOneBookMutation,
+  useEditOneBookMutation,
+  useGetListBookQuery,
+  useGetOneBookQuery,
+} = bookApi;

@@ -1,42 +1,44 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { combineReducers } from 'redux';
-import { persistReducer, persistStore } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-import { api } from '../api';
-import { setupListeners } from '@reduxjs/toolkit/query';
-import { loginApi } from '../endPoint/login';
-import { accountApi } from '../endPoint/accounts';
+import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers } from "redux";
+import { persistReducer, persistStore } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+import { api } from "../api";
+import { setupListeners } from "@reduxjs/toolkit/query";
+import { loginApi } from "../endPoint/login";
+import { accountApi } from "../endPoint/accounts";
+import { bookApi } from "./../endPoint/book";
 
 const persistConfig = {
-    key: 'root',
-    storage,
-    whitelist: ['data'],
+  key: "root",
+  storage,
+  whitelist: ["data"],
 };
 
 const makeStore = () => {
-    const reducers = combineReducers({
-        [api.reducerPath]: api.reducer,
-        [loginApi.reducerPath]: loginApi.reducer,
-        [accountApi.reducerPath]: accountApi.reducer,
+  const reducers = combineReducers({
+    [api.reducerPath]: api.reducer,
+    [loginApi.reducerPath]: loginApi.reducer,
+    [accountApi.reducerPath]: accountApi.reducer,
+    [bookApi.reducerPath]: bookApi.reducer,
+  });
 
-    });
+  const persistedReducer = persistReducer(persistConfig, reducers);
 
-    const persistedReducer = persistReducer(persistConfig, reducers);
+  const store = configureStore({
+    reducer: persistedReducer,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: false,
+      }).concat([
+        loginApi.middleware,
+        accountApi.middleware,
+        bookApi.middleware,
+      ]),
+  });
 
-    const store = configureStore({
-        reducer: persistedReducer,
-        middleware: (getDefaultMiddleware) =>
-            getDefaultMiddleware({
-                serializableCheck: false,
-            }).concat([
-                loginApi.middleware,
-                accountApi.middleware
-            ]),
-    });
+  setupListeners(store.dispatch);
 
-    setupListeners(store.dispatch);
-
-    return store;
+  return store;
 };
 
 export const store = makeStore();
