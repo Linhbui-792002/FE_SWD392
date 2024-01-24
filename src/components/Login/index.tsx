@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 
 const Login = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const user = useSelector((state: RootState) => state.auth.data);
+    const userData = useSelector((state: RootState) => state.auth.data);
     const router = useRouter()
     const [login] = useLoginMutation();
     const [getOneUser] = useGetOneUserMutation();
@@ -35,7 +35,12 @@ const Login = () => {
                     dispatch(loginSuccess(res));
                     const userDetail = user.data;
                     dispatch(setUserDetails(userDetail));
-                    router.push("/")
+                    if (res.data.role == "STAFF") {
+                        router.push("/staff")
+                    } else {
+                        router.push("/")
+                    }
+
                     notifications.show({
                         title: 'Thành công',
                         color: '#06d6a0',

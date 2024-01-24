@@ -1,13 +1,13 @@
 import React, { use, useEffect, useState } from "react";
-import { Button, Modal, Table, TextInput } from "@mantine/core";
+import { Button, Modal, Select, Table, TextInput } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
-  useAddBookMutation,
-  useGetListBookQuery,
-  useGetOneBookQuery,
-  useDeleteOneBookMutation,
-} from "@src/redux/endPoint/book";
-import { useGetListUserQuery } from "@src/redux/endPoint/accounts";
+  useAddUsersMutation,
+  useDeleteOneUsersMutation,
+  useGetListUserQuery,
+} from "@src/redux/endPoint/accounts";
+import { notifications } from "@mantine/notifications";
+import { useForm } from "react-hook-form";
 
 interface IUser {
   _id?: string;
@@ -21,14 +21,14 @@ interface IUser {
 }
 
 const User = () => {
-  const initData = {
-    name: "",
-    author: "",
-    price: 0,
-    stock_quantity: 0,
-  };
-
-  const [formData, setFormData] = useState<IUser>({});
+  const {
+    control,
+    register,
+    formState: { errors },
+    handleSubmit: handleAddNewUser,
+    reset,
+    setValue,
+  } = useForm();
 
   const [openedAddBook, { open: openAddBook, close: closeAddBook }] =
     useDisclosure(false);
@@ -39,12 +39,14 @@ const User = () => {
   const [params, setParams] = useState({});
   const [dataTable, setDataTable] = useState<IUser[]>([]);
   const [id, setId] = useState<string>("");
-  const { data } = useGetListUserQuery(params);
-  console.log(data);
+  const [role, setRole] = useState<string | null>("");
 
+  const { data } = useGetListUserQuery(params);
   // const { data: dataBook } = useGetOneBookQuery(id);
 
-  const [deleteOneBook] = useDeleteOneBookMutation();
+  const [deleteUser] = useDeleteOneUsersMutation();
+  const [createUser] = useAddUsersMutation();
+
   // console.log("dataById", dataById);
 
   // useEffect(() => {
@@ -56,21 +58,45 @@ const User = () => {
   // console.log("dataTable", dataTable);
 
   useEffect(() => {}, [id]);
-
-  const [createBook] = useAddBookMutation();
-  const addNewBook = async () => {
-    const res = await createBook(formData).unwrap();
-    if (res) {
-      console.log(res);
-      closeAddBook();
+  const onSubmit = async (data: any) => {
+    try {
+      if (data) {
+        const dataSubmit = {
+          phone: data.phone,
+          email: data.email,
+          fullname: {
+            lastname: data.lastname,
+            middname: data.middname,
+            firstname: data.firstname,
+          },
+          addresses: [
+            {
+              street: data.street,
+              city: data.city,
+            },
+          ],
+          account: {
+            username: data.username,
+            password: data.password,
+            role: role,
+          },
+        };
+        const res = await createUser(dataSubmit).unwrap();
+        notifications.show({
+          title: "Thành công",
+          color: "#06d6a0",
+          autoClose: 2000,
+          message: "Tạo tài khoản thành công",
+        });
+      }
+    } catch (error: any) {
+      notifications.show({
+        title: "Lỗi",
+        color: "#ef476f",
+        autoClose: 2000,
+        message: "Tạo tài khoản không thành công",
+      });
     }
-  };
-
-  const handleInputChange = (fieldName: string, value: string | number) => {
-    setFormData({
-      ...formData,
-      [fieldName]: value,
-    });
   };
 
   const handleEditBook = async (id: string) => {
@@ -86,7 +112,7 @@ const User = () => {
   };
 
   const deleteBook = async () => {
-    const res = await deleteOneBook(String(id));
+    const res = await deleteUser(id);
     if (res) {
       console.log(res);
       closeDeleteBook();
@@ -118,13 +144,13 @@ const User = () => {
     </Table.Tr>
   ));
 
-  return (
-    <div className="w-full h-full">
-      <div className="w-[80%] mx-[auto] mt-[30px]">
+  return (  
+    <div className="w-full h-full ">
+      <div className="w-[80%] min-h-[80vh] mx-[auto] mt-[30px]">
         <div className="flex justify-between text-2xl">
           User Manager
           <Button onClick={openAddBook} className="bg-[#066cee]">
-            Thêm Sách
+            Thêm User
           </Button>
         </div>
         <div className="flex justify-between text-xl">
@@ -145,63 +171,116 @@ const User = () => {
           </Table>
         </div>
       </div>
-
       <Modal
         size="40%"
         opened={openedAddBook}
         onClose={closeAddBook}
-        title="Thêm Sách"
+        title="Thêm User"
       >
-        <form onSubmit={addNewBook}>
+        <form onSubmit={handleAddNewUser(onSubmit)}>
           <TextInput
             className="w-full"
-            label="Tên sách"
+            label="Tên"
             mt="md"
-            placeholder="Nhập tên sách"
-            // value={formData.name}
-            onChange={(event) => handleInputChange("name", event.target.value)}
+            placeholder="Nhập tên"
+            {...register("firstname", {
+              required: "Không được để trống ",
+            })}
+          />
+          <TextInput
+            className="w-full"
+            label="Họ"
+            mt="md"
+            placeholder="Nhập họ"
+            {...register("lastname", {
+              required: "Không được để trống ",
+            })}
+          />
+          <TextInput
+            className="w-full"
+            label="Tên đệm"
+            mt="md"
+            placeholder="Nhập tên đệm"
+            {...register("middname", {
+              required: "Không được để trống ",
+            })}
           />
 
           <TextInput
             className="w-full"
-            label="Tên tác giả"
+            label="Số điện thoại"
             mt="md"
-            placeholder="Nhập tác giả"
-            // value={formData.author}
-            onChange={(event) =>
-              handleInputChange("author", event.target.value)
-            }
-          />
-
-          <TextInput
-            className="w-full"
-            label="Giá sách"
-            mt="md"
-            placeholder="Nhập giá sách"
+            placeholder="Nhập số điện thoại"
             type="number"
-            // value={formData.price}
-            onChange={(event) =>
-              handleInputChange("price", +event.target.value)
-            }
+            {...register("phone", {
+              required: "Không được để trống ",
+            })}
           />
 
           <TextInput
             className="w-full"
-            label="Số lượng sách"
+            label="Email"
             mt="md"
-            placeholder="Nhập số lượng sách"
-            type="number"
-            // value={formData.stock_quantity}
-            onChange={(event) =>
-              handleInputChange("stock_quantity", +event.target.value)
-            }
+            placeholder="Nhập email"
+            {...register("email", {
+              required: "Không được để trống ",
+            })}
           />
 
-          <Button className="bg-[#08c546] float-end my-5" onClick={addNewBook}>
+          <TextInput
+            className="w-full"
+            label="Đường"
+            mt="md"
+            placeholder="Nhập tên đường"
+            {...register("street", {
+              required: "Không được để trống ",
+            })}
+          />
+
+          <TextInput
+            className="w-full"
+            label="Thành phố"
+            mt="md"
+            placeholder="Nhập tên thành phố"
+            {...register("city", {
+              required: "Không được để trống ",
+            })}
+          />
+
+          <TextInput
+            className="w-full"
+            label="Tên tài khoản"
+            mt="md"
+            placeholder="Nhập tài khoản"
+            {...register("username", {
+              required: "Không được để trống ",
+            })}
+          />
+
+          <TextInput
+            className="w-full"
+            label="Mật khẩu"
+            mt="md"
+            placeholder="Nhập mật khẩu"
+            {...register("password", {
+              required: "Không được để trống ",
+            })}
+          />
+          <Select
+            label="Quyền"
+            placeholder="Chọn quyền"
+            searchable
+            data={["CUSTOMER", "STAFF"]}
+            value={role}
+            onChange={setRole}
+          />
+
+          <Button type="submit" className="bg-[#08c546] float-end my-5">
             Thêm mới
           </Button>
         </form>
       </Modal>
+
       <Modal
         size="40%"
         opened={openedEditBook}

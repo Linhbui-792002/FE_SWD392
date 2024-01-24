@@ -56,17 +56,17 @@ const Order = () => {
                     <div className="w-max">
                         <Select
                             label="Phương thức thanh toán"
-                            placeholder="Pick one"
+                            placeholder="Chọn Phương thức thanh toán"
                             searchable
-                            data={['React', 'Angular', 'Svelte', 'Vue']}
+                            data={['Chuyển khoản', 'Thanh toán trực tiếp', 'Thanh toán qua QR']}
                         />
                     </div>
                     <div className="w-max">
                         <Select
                             label="Đơn vị vận chuyển"
-                            placeholder="Pick one"
+                            placeholder="Chọn đơn vị vận chuyển"
                             searchable
-                            data={['React', 'Angular', 'Svelte', 'Vue']}
+                            data={['Giao Hàng Nhanh', 'Viettel Post', 'J&T Express', 'Ninja Van']}
                         />
                     </div>
                 </div>

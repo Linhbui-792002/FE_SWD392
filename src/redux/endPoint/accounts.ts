@@ -57,7 +57,7 @@ export const accountApi = createApi({
             invalidatesTags: ['UsersTag'],
         }),
         deleteOneUsers: build.mutation({
-            query(id: number) {
+            query(id: any) {
                 return {
                     url: `/customers/${id}`,
                     method: 'DELETE',

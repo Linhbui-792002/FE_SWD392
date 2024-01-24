@@ -22,15 +22,15 @@ const Cart = () => {
     }, [user, getListCart, router])
 
     useEffect(() => {
-        let totalPrice = 0
+        let totalPrice = 0;
         if (cartItem) {
             cartItem.map((item: any) => {
                 totalPrice += Number(item?.book?.price) * Number(item?.quantity)
             })
-            setTotal(totalPrice)
+            setTotal(totalPrice ? totalPrice : 0)
         }
 
-    }, [cartItem, user, getListCart, router])
+    }, [cartItem, user, getListCart, router, total])
 
     const getCartByCusID = async (id: any) => {
         try {

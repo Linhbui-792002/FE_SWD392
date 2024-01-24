@@ -16,7 +16,7 @@ const loginSlice = createSlice({
     initialState,
     reducers: {
         loginSuccess: (state, action: PayloadAction<any>) => {
-            state.data = action.payload;
+            state.data = action.payload as any;
             // Lưu thông tin đăng nhập vào localStorage
             localStorage.setItem('user', JSON.stringify(action.payload.data));
         },

@@ -43,16 +43,45 @@ const Header = () => {
         setCartItem("")
         router.push("/")
     };
-
+    const menu = [
+        {
+            name: "Books",
+            path: "/staff",
+        },
+        {
+            name: "Users",
+            path: "/staff/user-controller",
+        },
+    ];
 
     return (
         <div className="w-full shadow-md">
             <div className="w-[80%] mx-[auto] py-[16px] flex flex-row justify-between justify-items-center">
-                <div className="font-extrabold text-transparent text-4xl bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
-                    <Link href="/">
+                <div className="bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 flex items-center">
+                    <Link
+                        href="/"
+                        className="text-4xl font-extrabold text-transparent mr-8"
+                    >
                         Book shop
                     </Link>
+                    {router.asPath.includes("/staff") && (
+                        <div className="flex flex-row gap-4 items-center pt-2">
+                            {menu.map((item, index) => (
+                                <div
+                                    key={index}
+                                    onClick={() => router.push(item.path)}
+                                    className={`cursor-pointer ${router.asPath === item.path
+                                            ? "bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 underline"
+                                            : ""
+                                        }`}
+                                >
+                                    <div className="cursor-pointer">{item.name}</div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
+
                 <div className="w-max flex gap-4 flex-row items-center justify-between justify-items-center">
                     <div className="flex gap-4 flex-row items-center justify-between justify-items-center">
                         <div> {fullname}</div>
